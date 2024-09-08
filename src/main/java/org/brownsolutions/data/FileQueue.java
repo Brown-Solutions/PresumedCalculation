@@ -1,8 +1,11 @@
 package org.brownsolutions.data;
 
+import lombok.Getter;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
+@Getter
 public class FileQueue {
 
     private final Queue<String> queue;
@@ -22,6 +25,4 @@ public class FileQueue {
     public boolean isEmpty() {
         return this.queue.isEmpty();
     }
-
-    public Queue<String> getQueue() { return this.queue; }
 }

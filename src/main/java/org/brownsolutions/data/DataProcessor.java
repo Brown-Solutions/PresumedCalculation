@@ -2,10 +2,12 @@ package org.brownsolutions.data;
 
 import com.aspose.cells.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
 import org.brownsolutions.model.Line;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,16 +17,13 @@ public class DataProcessor implements Runnable {
     private final ArrayList<Line> remainingLines = new ArrayList<>();
     private Workbook workbook;
 
-    // UI Elements
     private final Button generateButton;
     private final Button saveButton;
     private final Button selectFilesButton;
     private final Button exampleFileButton;
 
-    // Queue for processing files
     private final FileQueue queue;
 
-    // Constructor
     public DataProcessor(Button generateButton, Button saveButton,
                          Button selectFilesButton, Button exampleFileButton) {
         this.queue = new FileQueue();
@@ -34,12 +33,10 @@ public class DataProcessor implements Runnable {
         this.exampleFileButton = exampleFileButton;
     }
 
-    // Adds a file to the queue for processing
     public void addToQueue(Object o) {
         queue.enqueue(((File) o).getPath());
     }
 
-    // Main processing method
     private void process() {
         loadWorkbook();
 
@@ -53,7 +50,6 @@ public class DataProcessor implements Runnable {
         }
     }
 
-    // Updates the worksheet with the processed data
     private void updateWorksheet(HashMap<Integer, HashMap<Integer, Line>> lines) {
         Worksheet sheet = workbook.getWorksheets().get(0);
         Cells cells = sheet.getCells();
@@ -101,7 +97,6 @@ public class DataProcessor implements Runnable {
         remainingLines.clear();
     }
 
-    // Adds remaining lines to the worksheet
     private void addRemainingLinesToWorksheet(Cells cells, int currentRow) {
         for (Line entry : remainingLines) {
             cells.get(currentRow, 0).setValue(entry.getCnpj());
@@ -122,7 +117,6 @@ public class DataProcessor implements Runnable {
         }
     }
 
-    // Sets the color of a cell
     private void setCellColor(Cell cell, Color color) {
         Style style = cell.getStyle();
         style.setForegroundColor(color);
@@ -130,7 +124,6 @@ public class DataProcessor implements Runnable {
         cell.setStyle(style);
     }
 
-    // Retrieves the branch code based on the CNPJ
     private int getBranchFromCNPJ(String cnpj) {
         return switch (cnpj) {
             case "86900925/0001-04" -> 1000;
@@ -147,7 +140,6 @@ public class DataProcessor implements Runnable {
         };
     }
 
-    // Loads the workbook from a predefined path
     private void loadWorkbook() {
         String filePath = System.getProperty("user.home") + "\\Documents\\PresumedCalculation\\example.xlsx";
         try (InputStream inputStream = new FileInputStream(filePath)) {
@@ -159,10 +151,8 @@ public class DataProcessor implements Runnable {
         }
     }
 
-    // Saves the workbook to the specified file path
     public void save(String filePath) {
         try {
-            System.out.println(remainingLines.size());
             workbook.calculateFormula();
             workbook.save(filePath, SaveFormat.XLSX);
 
@@ -189,7 +179,6 @@ public class DataProcessor implements Runnable {
         }
     }
 
-    // Updates the UI elements upon completion of processing
     private void updateUIOnCompletion() {
         generateButton.setVisible(false);
         saveButton.setVisible(true);
